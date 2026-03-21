@@ -27,3 +27,24 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Melos
+pubspec_overrides.yaml
+.melos_tool/
+
+# Generated files (build_runner / drift / riverpod)
+*.g.dart
+*.freezed.dart
+
+# Coverage
+coverage/
+lcov.info
+
+# IDEs
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+devwork/

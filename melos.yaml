@@ -1,0 +1,55 @@
+name: hatch
+
+packages:
+  - apps/*
+  - packages/*
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    run: melos exec -- flutter analyze
+    description: Run flutter analyze across all packages.
+
+  test:
+    run: melos exec --dir-exists=test -- flutter test
+    description: Run flutter test in all packages with a test directory.
+
+  test:coverage:
+    run: melos exec --dir-exists=test -- flutter test --coverage
+    description: Run tests with coverage.
+
+  format:
+    run: melos exec -- dart format .
+    description: Format all Dart files.
+
+  format:check:
+    run: melos exec -- dart format --set-exit-if-changed .
+    description: Check formatting without modifying files (CI).
+
+  codegen:
+    run: melos exec --depends-on="build_runner" -- dart run build_runner build --delete-conflicting-outputs
+    description: Run build_runner codegen in all packages that depend on it.
+
+  codegen:watch:
+    run: melos exec --depends-on="build_runner" -- dart run build_runner watch --delete-conflicting-outputs
+    description: Run build_runner in watch mode.
+
+  clean:
+    run: melos exec -- flutter clean
+    description: Clean all packages.
+
+  build:android:
+    run: melos exec --scope="hatch" -- flutter build apk
+    description: Build Android APK.
+
+  build:ios:
+    run: melos exec --scope="hatch" -- flutter build ios --no-codesign
+    description: Build iOS (no codesign).
+
+  build:web:
+    run: melos exec --scope="hatch" -- flutter build web
+    description: Build Web.

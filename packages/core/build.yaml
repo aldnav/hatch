@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          generate_connect_constructor: true
+          sql:
+            dialect: sqlite
+      riverpod_generator:
+        options:
+          riverpod_version: 2

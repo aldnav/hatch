@@ -1,0 +1,20 @@
+name: core
+description: Core business logic, database, and providers for Hatch.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  drift: ^2.18.0
+  riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  uuid: ^4.4.0
+
+dev_dependencies:
+  build_runner: ^2.4.11
+  drift_dev: ^2.18.0
+  riverpod_generator: ^2.4.3
+  lints: ^4.0.0
+  test: ^1.25.2

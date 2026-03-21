@@ -1,0 +1,12 @@
+name: hatch_workspace
+publish_to: none
+
+# Workspace root — no lib/ directory.
+# All packages live under apps/ and packages/.
+# Run `melos bootstrap` to link all local packages.
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dev_dependencies:
+  melos: ^6.1.0
