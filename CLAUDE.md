@@ -37,7 +37,7 @@ melos run build:ios
 melos run build:web
 
 # Self-hosted backend (Docker)
-cp .env.example .env      # fill in secrets
+cp docker/.env.example docker/.env   # fill in secrets
 docker compose -f docker/docker-compose.yml up -d
 ```
 

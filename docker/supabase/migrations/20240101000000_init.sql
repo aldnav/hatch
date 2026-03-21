@@ -7,6 +7,79 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- ---------------------------------------------------------------------------
+-- Schemas required by Supabase services (must exist before services start)
+-- ---------------------------------------------------------------------------
+
+CREATE SCHEMA IF NOT EXISTS auth;
+CREATE SCHEMA IF NOT EXISTS _realtime;
+
+-- ---------------------------------------------------------------------------
+-- Roles for Supabase services and PostgREST
+-- ---------------------------------------------------------------------------
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'anon') THEN
+    CREATE ROLE anon NOLOGIN NOINHERIT;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'authenticated') THEN
+    CREATE ROLE authenticated NOLOGIN NOINHERIT;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'service_role') THEN
+    CREATE ROLE service_role NOLOGIN NOINHERIT BYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'supabase_admin') THEN
+    CREATE ROLE supabase_admin NOLOGIN NOINHERIT BYPASSRLS;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'supabase_auth_admin') THEN
+    CREATE ROLE supabase_auth_admin NOLOGIN NOINHERIT;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'supabase_storage_admin') THEN
+    CREATE ROLE supabase_storage_admin NOLOGIN NOINHERIT;
+  END IF;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'authenticator') THEN
+    CREATE ROLE authenticator NOLOGIN NOINHERIT;
+  END IF;
+END
+$$;
+
+-- Allow postgres superuser to act as service roles
+GRANT service_role TO postgres;
+GRANT supabase_admin TO postgres;
+GRANT supabase_auth_admin TO postgres;
+GRANT supabase_storage_admin TO postgres;
+
+-- Public schema access
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, service_role;
+
+-- Auth schema access for GoTrue
+GRANT ALL ON SCHEMA auth TO supabase_auth_admin;
+GRANT ALL ON SCHEMA auth TO postgres;
+
+-- Realtime schema access
+GRANT ALL ON SCHEMA _realtime TO supabase_admin;
+GRANT ALL ON SCHEMA _realtime TO postgres;
+
+-- ---------------------------------------------------------------------------
+-- Stub auth helper functions
+-- GoTrue will CREATE OR REPLACE these with real JWT-reading implementations
+-- when it runs its own migrations. The stubs allow RLS policies that reference
+-- auth.uid() / auth.role() / auth.email() to be created before GoTrue starts.
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION auth.uid()
+  RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT NULL::uuid $$;
+
+CREATE OR REPLACE FUNCTION auth.role()
+  RETURNS text LANGUAGE sql STABLE AS $$ SELECT NULL::text $$;
+
+CREATE OR REPLACE FUNCTION auth.email()
+  RETURNS text LANGUAGE sql STABLE AS $$ SELECT NULL::text $$;
+
+-- ---------------------------------------------------------------------------
 -- Tables
 -- ---------------------------------------------------------------------------
 
@@ -205,6 +278,95 @@ CREATE POLICY trip_days_access ON public.trip_days
         )
     );
 
--- Repeat the same collaborator-or-owner pattern for the remaining tables.
--- (abbreviated — same logic applies to activities, flights, hotels, notes,
---  expenses, attachments, sync_log)
+CREATE POLICY activities_access ON public.activities
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trip_days td
+            JOIN public.trips t ON t.id = td.trip_id
+            WHERE td.id = activities.trip_day_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY flights_access ON public.flights
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = flights.trip_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY hotels_access ON public.hotels
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = hotels.trip_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY notes_access ON public.notes
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = notes.trip_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY expenses_access ON public.expenses
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = expenses.trip_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY attachments_access ON public.attachments
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = attachments.trip_id
+              AND (t.user_id = auth.uid() OR EXISTS (
+                SELECT 1 FROM public.collaborators c
+                WHERE c.trip_id = t.id AND c.user_id = auth.uid()
+              ))
+        )
+    );
+
+CREATE POLICY collaborators_access ON public.collaborators
+    USING (
+        collaborators.user_id = auth.uid()
+        OR EXISTS (
+            SELECT 1 FROM public.trips t
+            WHERE t.id = collaborators.trip_id AND t.user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY places_select ON public.places
+    FOR SELECT USING (auth.uid() IS NOT NULL);
+
+CREATE POLICY places_write ON public.places
+    FOR ALL USING (auth.uid() IS NOT NULL)
+    WITH CHECK (auth.uid() IS NOT NULL);
+
+CREATE POLICY sync_log_access ON public.sync_log
+    USING (auth.uid() IS NOT NULL)
+    WITH CHECK (auth.uid() IS NOT NULL);

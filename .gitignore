@@ -48,3 +48,4 @@ lcov.info
 .DS_Store
 
 devwork/
+docker/supabase/signing_keys.json

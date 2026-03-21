@@ -21,7 +21,7 @@ Screenshots coming in M3.
 **Prerequisites:** Docker and Docker Compose.
 
 ```bash
-cp .env.example .env          # fill in secrets
+cp docker/.env.example docker/.env   # fill in secrets
 docker compose -f docker/docker-compose.yml up -d
 ```
 
