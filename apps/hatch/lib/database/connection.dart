@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-import 'connection_native.dart'
-    if (dart.library.html) 'connection_web.dart';
+import 'package:hatch/database/connection_native.dart'
+    if (dart.library.html) 'package:hatch/database/connection_web.dart';
 
 /// Opens a platform-appropriate [QueryExecutor].
 /// - Mobile/Desktop: NativeDatabase via sqlite3_flutter_libs

@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/aldnav/hatch/actions/workflows/ci.yml/badge.svg)](https://github.com/aldnav/hatch/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Flutter 3.22](https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter 3.41](https://img.shields.io/badge/Flutter-3.41.5-02569B?logo=flutter)](https://flutter.dev)
 
 ## Overview
 
@@ -31,7 +31,7 @@ The stack starts PostgreSQL with pgvector, Supabase Auth, Realtime, Storage (bac
 
 ## Developer setup
 
-**Prerequisites:** Flutter >= 3.22, Dart >= 3.4, Melos, Lefthook.
+**Prerequisites:** Flutter >= 3.41, Dart >= 3.11, Melos, Lefthook.
 
 ```bash
 # Install tooling

@@ -10,7 +10,7 @@ part 'auth_provider.g.dart';
 bool _supabaseReady() {
   try {
     return Supabase.instance.isInitialized;
-  } on AssertionError {
+  } catch (_) {
     return false;
   }
 }

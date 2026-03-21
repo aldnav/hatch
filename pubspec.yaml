@@ -6,7 +6,7 @@ publish_to: none
 # Run `melos bootstrap` to link all local packages.
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 
 dev_dependencies:
   melos: ^6.1.0
