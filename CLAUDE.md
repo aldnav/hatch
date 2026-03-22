@@ -81,3 +81,10 @@ After changing any table: run `melos run codegen`. To add a migration: increment
 ### Backend (Supabase, self-hosted)
 
 `docker/docker-compose.yml` runs PostgreSQL+pgvector, Supabase Auth, Realtime, Storage (S3 via MinIO), and Kong as API gateway. The Flutter app connects via `--dart-define=SUPABASE_URL` and `SUPABASE_ANON_KEY`. RLS policies in `docker/supabase/migrations/` mirror the Drift schema.
+
+## Implementation
+
+1. Plan first. Save to devwork/plan_*.md. Plan for implementation and tests (manual and automated).
+2. During planning, ask the user for any blockers or unknowns. Update the plan until it's clear.
+3. Implement the feature. Write tests as you go.
+4. After implementation, run all tests and the analyzer to confirm zero issues.

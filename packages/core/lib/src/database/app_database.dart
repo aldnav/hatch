@@ -13,6 +13,7 @@ import 'tables/sync_log_table.dart';
 import 'tables/trip_days_table.dart';
 import 'tables/trips_table.dart';
 import 'tables/users_table.dart';
+import 'users_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -36,6 +37,8 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
+
+  late final UsersDao usersDao = UsersDao(this);
 
   @override
   int get schemaVersion => 1;

@@ -2,6 +2,7 @@
 library core;
 
 export 'src/database/app_database.dart';
+export 'src/database/users_dao.dart';
 export 'src/database/tables/activities_table.dart';
 export 'src/database/tables/attachments_table.dart';
 export 'src/database/tables/collaborators_table.dart';
