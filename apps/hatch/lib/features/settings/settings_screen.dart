@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:hatch/providers/auth_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -15,7 +15,7 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Sign out'),
             onTap: () async {
-              await Supabase.instance.client.auth.signOut();
+              await ref.read(authRepositoryProvider).signOut();
             },
           ),
         ],
